@@ -1,0 +1,164 @@
+# ======================
+# JMeter Slave 1
+# ======================
+apiVersion: v1
+kind: Service
+metadata:
+  name: jmeter-slave-1-svc
+  namespace: jmeter
+  labels:
+    app: jmeter
+    role: slave
+    slave-id: "1"
+spec:
+  clusterIP: None
+  selector:
+    app: jmeter
+    role: slave
+    slave-id: "1"
+  ports:
+    - port: 1099
+      targetPort: 1099
+      name: rmi
+    - port: 50000
+      targetPort: 50000
+      name: server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jmeter-slave-1
+  namespace: jmeter
+  labels:
+    app: jmeter
+    role: slave
+    slave-id: "1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jmeter
+      role: slave
+      slave-id: "1"
+  template:
+    metadata:
+      labels:
+        app: jmeter
+        role: slave
+        slave-id: "1"
+    spec:
+      containers:
+        - name: jmeter-slave
+          image: get2kamal/jmeter-custom:latest
+          imagePullPolicy: Always
+          args: ["slave"]
+          env:
+            - name: CSV_FILE
+              value: "testdata1.csv"
+            - name: GIT_REPO
+              value: "https://github.com/get2kamal-art/jmeter-testplans.git"
+            - name: GIT_BRANCH
+              value: "master"
+            - name: INFLUX_ENABLED
+              value: "true"
+            - name: INFLUX_URL
+              value: "http://monitoring-service.monitoring.svc.cluster.local:8086"
+            - name: INFLUX_ORG
+              value: "jmeter_org"
+            - name: INFLUX_BUCKET
+              value: "jmeter_bucket"
+            - name: INFLUX_TOKEN
+              value: "jmeter-token"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "4Gi"
+          ports:
+            - containerPort: 1099
+            - containerPort: 50000
+
+# ======================
+# JMeter Slave 2
+# ======================
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jmeter-slave-2-svc
+  namespace: jmeter
+  labels:
+    app: jmeter
+    role: slave
+    slave-id: "2"
+spec:
+  clusterIP: None
+  selector:
+    app: jmeter
+    role: slave
+    slave-id: "2"
+  ports:
+    - port: 1099
+      targetPort: 1099
+      name: rmi
+    - port: 50000
+      targetPort: 50000
+      name: server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jmeter-slave-2
+  namespace: jmeter
+  labels:
+    app: jmeter
+    role: slave
+    slave-id: "2"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jmeter
+      role: slave
+      slave-id: "2"
+  template:
+    metadata:
+      labels:
+        app: jmeter
+        role: slave
+        slave-id: "2"
+    spec:
+      containers:
+        - name: jmeter-slave
+          image: get2kamal/jmeter-custom:latest
+          imagePullPolicy: Always
+          args: ["slave"]
+          env:
+            - name: CSV_FILE
+              value: "testdata2.csv"
+            - name: GIT_REPO
+              value: "https://github.com/get2kamal-art/jmeter-testplans.git"
+            - name: GIT_BRANCH
+              value: "master"
+            - name: INFLUX_ENABLED
+              value: "true"
+            - name: INFLUX_URL
+              value: "http://monitoring-service.monitoring.svc.cluster.local:8086"
+            - name: INFLUX_ORG
+              value: "jmeter_org"
+            - name: INFLUX_BUCKET
+              value: "jmeter_bucket"
+            - name: INFLUX_TOKEN
+              value: "jmeter-token"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "4Gi"
+          ports:
+            - containerPort: 1099
+            - containerPort: 50000

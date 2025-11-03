@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jmeter-results-pvc
+  namespace: jmeter
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp3-immediate
+  resources:
+    requests:
+      storage: 5Gi

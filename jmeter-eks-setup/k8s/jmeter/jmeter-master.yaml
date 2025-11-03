@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jmeter-master
+  namespace: jmeter
+  labels:
+    app: jmeter
+    role: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jmeter
+      role: master
+  template:
+    metadata:
+      labels:
+        app: jmeter
+        role: master
+    spec:
+      containers:
+        - name: jmeter-master
+          image: get2kamal/jmeter-custom:latest  # REPLACE with your image
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: GIT_REPO
+              value: "https://github.com/get2kamal-art/jmeter-testplans.git"
+            - name: GIT_BRANCH
+              value: "master"
+            - name: TEST_PLAN
+              value: "JPetStore_Registration.jmx"
+            - name: INFLUX_ENABLED
+              value: "true"
+            - name: INFLUX_URL
+              value: "http://monitoring-service.monitoring.svc.cluster.local:8086"
+            - name: INFLUX_ORG
+              value: "jmeter_org"
+            - name: INFLUX_BUCKET
+              value: "jmeter_bucket"
+            - name: INFLUX_TOKEN
+              value: "jmeter-token"
+            - name: USERS
+              value: "5"
+            - name: REMOTE_HOSTS
+              value: "jmeter-slave-1-svc:1099,jmeter-slave-2-svc:1099"
+          ports:
+            - containerPort: 1099
+              name: rmi
+          volumeMounts:
+            - name: results
+              mountPath: /results
+      volumes:
+        - name: results
+          persistentVolumeClaim:
+            claimName: jmeter-results-pvc
